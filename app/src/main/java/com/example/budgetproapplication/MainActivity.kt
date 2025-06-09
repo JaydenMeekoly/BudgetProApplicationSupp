@@ -3,23 +3,20 @@ package com.example.budgetproapplication
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
 import com.example.budgetproapplication.data.repository.AuthRepository
 import com.example.budgetproapplication.ui.navigation.AuthNavigation
 import com.example.budgetproapplication.ui.theme.BudgetProApplicationTheme
 import com.example.budgetproapplication.ui.viewmodel.AuthViewModel
-import com.example.budgetproapplication.ui.viewmodel.AuthViewModelFactory
+import com.example.budgetproapplication.ui.viewmodel.ExpenseViewModel
+import com.example.budgetproapplication.ui.viewmodel.GoalViewModel
 
 class MainActivity : ComponentActivity() {
-    private val authRepository by lazy { AuthRepository() }
-    private val authViewModel: AuthViewModel by viewModels { 
-        AuthViewModelFactory(authRepository)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -28,21 +25,27 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AuthNavigation(authViewModel = authViewModel)
+                    MainScreen()
                 }
             }
         }
     }
 }
 
-class AuthViewModelFactory(
-    private val authRepository: AuthRepository
-) : androidx.lifecycle.ViewModelProvider.Factory {
-    override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AuthViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AuthViewModel(authRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
+@androidx.compose.runtime.Composable
+fun MainScreen() {
+    val navController = rememberNavController()
+    val authRepository = AuthRepository()
+    val authViewModel: AuthViewModel = viewModel(
+        factory = AuthViewModel.provideFactory(authRepository)
+    )
+    val expenseViewModel: ExpenseViewModel = viewModel()
+    val goalViewModel: GoalViewModel = viewModel()
+
+    AuthNavigation(
+        navController = navController,
+        authViewModel = authViewModel,
+        expenseViewModel = expenseViewModel,
+        goalViewModel = goalViewModel
+    )
 }

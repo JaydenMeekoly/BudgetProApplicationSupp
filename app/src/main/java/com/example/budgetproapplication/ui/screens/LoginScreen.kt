@@ -11,34 +11,26 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.budgetproapplication.ui.viewmodel.AuthViewModel
 import com.example.budgetproapplication.ui.viewmodel.AuthState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit,
-    onSignupClick: () -> Unit,
-    viewModel: AuthViewModel = viewModel()
+    onLoginSuccess: () -> Unit,
+    authViewModel: AuthViewModel
 ) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
 
-    val authState by viewModel.authState.collectAsState()
+    val authState by authViewModel.authState.collectAsState()
 
     LaunchedEffect(authState) {
         when (authState) {
-            is AuthState.Error -> {
-                // Handle error state
-                val errorMessage = (authState as AuthState.Error).message
-                // You might want to show a snackbar or dialog with the error message
-            }
             is AuthState.Authenticated -> {
-                // Handle successful authentication
-                // Navigate to main screen or handle as needed
+                onLoginSuccess()
             }
             else -> {}
         }
@@ -117,7 +109,7 @@ fun LoginScreen(
                 }
 
                 if (isValid) {
-                    viewModel.signIn(email, password)
+                    authViewModel.signIn(email, password)
                 }
             },
             modifier = Modifier
@@ -133,18 +125,6 @@ fun LoginScreen(
             } else {
                 Text("Login")
             }
-        }
-
-        TextButton(
-            onClick = onSignupClick,
-            modifier = Modifier.padding(top = 16.dp),
-            enabled = authState !is AuthState.Loading
-        ) {
-            Text(
-                text = "Don't have an account? Sign up",
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth()
-            )
         }
 
         when (authState) {
