@@ -8,12 +8,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.budgetproapplication.ui.viewmodel.AuthViewModel
+import com.example.budgetproapplication.ui.viewmodel.AuthState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(
     onSignupClick: (String, String, String) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    viewModel: AuthViewModel = viewModel()
 ) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
@@ -24,6 +28,23 @@ fun SignupScreen(
     var emailError by remember { mutableStateOf<String?>(null) }
     var passwordError by remember { mutableStateOf<String?>(null) }
     var confirmPasswordError by remember { mutableStateOf<String?>(null) }
+
+    val authState by viewModel.authState.collectAsState()
+
+    LaunchedEffect(authState) {
+        when (authState) {
+            is AuthState.Error -> {
+                // Handle error state
+                val errorMessage = (authState as AuthState.Error).message
+                // You might want to show a snackbar or dialog with the error message
+            }
+            is AuthState.Authenticated -> {
+                // Handle successful authentication
+                // Navigate to main screen or handle as needed
+            }
+            else -> {}
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -48,7 +69,8 @@ fun SignupScreen(
             isError = nameError != null,
             supportingText = { nameError?.let { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            enabled = authState !is AuthState.Loading
         )
 
         OutlinedTextField(
@@ -61,7 +83,8 @@ fun SignupScreen(
             isError = emailError != null,
             supportingText = { emailError?.let { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            enabled = authState !is AuthState.Loading
         )
 
         OutlinedTextField(
@@ -75,7 +98,8 @@ fun SignupScreen(
             isError = passwordError != null,
             supportingText = { passwordError?.let { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            enabled = authState !is AuthState.Loading
         )
 
         OutlinedTextField(
@@ -89,7 +113,8 @@ fun SignupScreen(
             isError = confirmPasswordError != null,
             supportingText = { confirmPasswordError?.let { Text(it) } },
             modifier = Modifier.fillMaxWidth(),
-            singleLine = true
+            singleLine = true,
+            enabled = authState !is AuthState.Loading
         )
 
         Button(
@@ -130,19 +155,28 @@ fun SignupScreen(
                 }
 
                 if (isValid) {
-                    onSignupClick(name, email, password)
+                    viewModel.signUp(name, email, password)
                 }
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 8.dp)
+                .padding(vertical = 8.dp),
+            enabled = authState !is AuthState.Loading
         ) {
-            Text("Sign Up")
+            if (authState is AuthState.Loading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(24.dp),
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
+            } else {
+                Text("Sign Up")
+            }
         }
 
         TextButton(
             onClick = onLoginClick,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp),
+            enabled = authState !is AuthState.Loading
         ) {
             Text(
                 text = "Already have an account? Login",
