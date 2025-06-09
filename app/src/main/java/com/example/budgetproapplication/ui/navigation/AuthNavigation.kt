@@ -26,18 +26,17 @@ import androidx.navigation.NavHostController
 sealed class AuthScreen(val route: String) {
     object Login : AuthScreen("login")
     object Signup : AuthScreen("signup")
-    object Home : AuthScreen("home")
     object Dashboard : AuthScreen("dashboard")
     object AddExpense : AuthScreen("add_expense")
-    object SetGoals : AuthScreen("set_goals")
     object ViewExpenses : AuthScreen("view_expenses")
+    object SetGoals : AuthScreen("set_goals")
     object ViewTotals : AuthScreen("view_totals")
 }
 
 @Composable
 fun AuthNavigation(
+    navController: NavHostController,
     authViewModel: AuthViewModel,
-    navController: NavHostController = rememberNavController(),
     expenseViewModel: ExpenseViewModel,
     goalViewModel: GoalViewModel
 ) {
@@ -74,16 +73,28 @@ fun AuthNavigation(
             )
         }
 
+        composable(AuthScreen.Signup.route) {
+            SignupScreen(
+                onSignupClick = { name, email, password ->
+                    authViewModel.signUp(name, email, password)
+                },
+                onLoginClick = {
+                    navController.navigateUp()
+                },
+                viewModel = authViewModel
+            )
+        }
+
         composable(AuthScreen.Dashboard.route) {
             DashboardScreen(
                 onNavigateToAddExpense = {
                     navController.navigate(AuthScreen.AddExpense.route)
                 },
-                onNavigateToSetGoals = {
-                    navController.navigate(AuthScreen.SetGoals.route)
-                },
                 onNavigateToViewExpenses = {
                     navController.navigate(AuthScreen.ViewExpenses.route)
+                },
+                onNavigateToSetGoals = {
+                    navController.navigate(AuthScreen.SetGoals.route)
                 },
                 onNavigateToViewTotals = {
                     navController.navigate(AuthScreen.ViewTotals.route)
@@ -93,36 +104,28 @@ fun AuthNavigation(
 
         composable(AuthScreen.AddExpense.route) {
             AddExpenseScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
+                onNavigateBack = { navController.navigateUp() },
+                expenseViewModel = expenseViewModel
+            )
+        }
+
+        composable(AuthScreen.ViewExpenses.route) {
+            ViewExpensesScreen(
+                onNavigateBack = { navController.navigateUp() },
                 expenseViewModel = expenseViewModel
             )
         }
 
         composable(AuthScreen.SetGoals.route) {
             SetGoalsScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
+                onNavigateBack = { navController.navigateUp() },
                 goalViewModel = goalViewModel
-            )
-        }
-
-        composable(AuthScreen.ViewExpenses.route) {
-            ViewExpensesScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
-                expenseViewModel = expenseViewModel
             )
         }
 
         composable(AuthScreen.ViewTotals.route) {
             ViewTotalsScreen(
-                onNavigateBack = {
-                    navController.popBackStack()
-                },
+                navController = navController,
                 expenseViewModel = expenseViewModel
             )
         }
