@@ -13,8 +13,10 @@ import com.example.budgetproapplication.ui.screens.HomeScreen
 import com.example.budgetproapplication.ui.screens.LoginScreen
 import com.example.budgetproapplication.ui.screens.SignupScreen
 import com.example.budgetproapplication.ui.screens.AddExpenseScreen
+import com.example.budgetproapplication.ui.screens.ViewExpensesScreen
 import com.example.budgetproapplication.ui.viewmodel.AuthState
 import com.example.budgetproapplication.ui.viewmodel.AuthViewModel
+import com.example.budgetproapplication.ui.viewmodel.ExpenseViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 
@@ -35,6 +37,7 @@ fun AuthNavigation(
     navController: NavHostController = rememberNavController()
 ) {
     val authState by authViewModel.authState.collectAsState()
+    val expenseViewModel: ExpenseViewModel = viewModel()
 
     LaunchedEffect(authState) {
         when (authState) {
@@ -97,18 +100,23 @@ fun AuthNavigation(
             AddExpenseScreen(
                 onNavigateBack = {
                     navController.popBackStack()
-                }
+                },
+                expenseViewModel = expenseViewModel
+            )
+        }
+
+        composable(AuthScreen.ViewExpenses.route) {
+            ViewExpensesScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
+                },
+                expenses = expenseViewModel.expenses.collectAsState().value
             )
         }
 
         composable(AuthScreen.SetGoals.route) {
             // TODO: Implement SetGoals screen
             Text("Set Goals Screen - Coming Soon")
-        }
-
-        composable(AuthScreen.ViewExpenses.route) {
-            // TODO: Implement ViewExpenses screen
-            Text("View Expenses Screen - Coming Soon")
         }
 
         composable(AuthScreen.ViewTotals.route) {
