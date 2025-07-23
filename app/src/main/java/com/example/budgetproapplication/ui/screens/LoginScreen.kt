@@ -18,6 +18,7 @@ import com.example.budgetproapplication.ui.viewmodel.AuthState
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
+    onSignupClick: () -> Unit,
     authViewModel: AuthViewModel
 ) {
     var email by remember { mutableStateOf("") }
@@ -141,6 +142,17 @@ fun LoginScreen(
                 )
             }
             else -> {}
+        }
+        // Add signup button
+        TextButton(
+            onClick = onSignupClick,
+            modifier = Modifier.padding(top = 8.dp)
+        ) {
+            Text(
+                text = "Don't have an account? Sign up",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 } 
