@@ -168,9 +168,7 @@ fun AuthNavigation(
 
         composable(AuthScreen.CategorySpendingGraph.route) {
             CategorySpendingGraphScreen(
-                onNavigateBack = { navController.navigateUp() },
-                expenseViewModel = expenseViewModel,
-                goalViewModel = goalViewModel
+                navController = navController
             )
         }
     }
