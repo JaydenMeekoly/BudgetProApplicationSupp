@@ -17,6 +17,7 @@ import com.example.budgetproapplication.ui.screens.ViewExpensesScreen
 import com.example.budgetproapplication.ui.screens.SetGoalsScreen
 import com.example.budgetproapplication.ui.screens.ViewTotalsScreen
 import com.example.budgetproapplication.ui.screens.BudgetProgressScreen
+import com.example.budgetproapplication.ui.screens.CategorySpendingGraphScreen
 import com.example.budgetproapplication.ui.viewmodel.AuthState
 import com.example.budgetproapplication.ui.viewmodel.AuthViewModel
 import com.example.budgetproapplication.ui.viewmodel.ExpenseViewModel
@@ -35,6 +36,7 @@ sealed class AuthScreen(val route: String) {
     object SetGoals : AuthScreen("SetGoals")
     object ViewTotals : AuthScreen("ViewTotals")
     object BudgetProgress : AuthScreen("BudgetProgress")
+    object CategorySpendingGraph : AuthScreen("CategorySpendingGraph")
 }
 
 @Composable
@@ -115,6 +117,9 @@ fun AuthNavigation(
                 },
                 onNavigateToBudgetProgress = {
                     navController.navigate(AuthScreen.BudgetProgress.route)
+                },
+                onNavigateToCategorySpendingGraph = {
+                    navController.navigate(AuthScreen.CategorySpendingGraph.route)
                 }
             )
         }
@@ -155,6 +160,14 @@ fun AuthNavigation(
 
         composable(AuthScreen.BudgetProgress.route) {
             BudgetProgressScreen(
+                onNavigateBack = { navController.navigateUp() },
+                expenseViewModel = expenseViewModel,
+                goalViewModel = goalViewModel
+            )
+        }
+
+        composable(AuthScreen.CategorySpendingGraph.route) {
+            CategorySpendingGraphScreen(
                 onNavigateBack = { navController.navigateUp() },
                 expenseViewModel = expenseViewModel,
                 goalViewModel = goalViewModel
